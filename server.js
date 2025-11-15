@@ -1,17 +1,19 @@
-
 import express from "express";
 import path from "path";
-import fetch from "node-fetch";
 import { fileURLToPath } from "url";
 
 const app = express();
 
+// Fix __dirname untuk ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// =========================
+//        ROUTE AI
+// =========================
 app.post("/ai/hugeface", async (req, res) => {
     try {
         const prompt = req.body.prompt || "Hello";
@@ -19,6 +21,7 @@ app.post("/ai/hugeface", async (req, res) => {
         const HF_TOKEN = process.env.HF_TOKEN;
         const HF_MODEL = "google/gemma-2-2b-it";
 
+        // Node.js sudah punya fetch bawaan
         const response = await fetch(
             `https://api-inference.huggingface.co/models/${HF_MODEL}`,
             {
@@ -45,11 +48,15 @@ app.post("/ai/hugeface", async (req, res) => {
             JSON.stringify(data);
 
         res.json({ answer: text });
+
     } catch (err) {
         console.error("AI ERROR:", err);
         res.json({ error: "AI server error" });
     }
 });
 
+// =========================
+//        START SERVER
+// =========================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log("Server berjalan di port", PORT));
